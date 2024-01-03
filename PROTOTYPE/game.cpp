@@ -25,9 +25,6 @@ void AGame::initGameObjects()
 	backgroundSprite.setTexture(backgroundTexture);
 	backgroundSprite.setPosition(sf::Vector2f(0, 0));
 
-	for (int i = 0; i < 10; i++) { this->spawnItem(); }
-	
-
 }
 
 // ------ Constructor and Destructor ------
@@ -94,10 +91,16 @@ void AGame::update(float deltaTime)
 	this->player->update(deltaTime);
 
 	// items
+	int i = 0;
 	for (auto *j : this->items)
 	{
 		j->update(deltaTime);
+		checkItemOffscreen(j, i);
+		i++;
 	}
+	
+	//if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) { this->spawnItem(); }
+	//std::cout << items.size() << std::endl;
 
 	// collision
 	this->checkPlayerCollisions();
@@ -145,14 +148,37 @@ void AGame::checkPlayerCollisions()
 		if ((dx + dy) < (this->player->playerCollision.getRadius() + j->itemCollision.getRadius()))
 		{
 			score += j->onCollision(*player); // collect or activate item
-			this->items.erase(items.begin() + i); // delete item
+			this->items.erase(items.begin() + i); // erase item out of vector
+			j->~AItem(); // call deconstructor
 		}
 		i++;
 	}
 }
 
+void AGame::checkItemOffscreen(AItem* item, int i)
+{
+	/*
+		Check if item is below bottom of screen and delete if it is
+		- i is position in items vector
+	*/
+	if (i > this->items.size() - 1) { return; } // if iterator is outside range return (can happen due to player colliding with items)
+
+	if (item->getPosition().y > 656)
+	{
+		this->items.erase(this->items.begin() + i); // erase item out of vector
+		item->~AItem(); // call deconstructor
+	}
+	
+}
+
 void AGame::spawnItem()
 {
+	/*
+		Handles spawning Items
+		- selects random item between loot (80%), meat (10%) and devilfruits (10%)
+		- selects random spawning position
+		- check if spawn position is to close to last one
+	*/
 	//AItem item(sf::Vector2f(20.0f, 20.0f), 1);
 	// probability = 80 % loot , 10 % meat , 10 % devilfruits
 	int probability[10] = { 1, 4, 3, 3, 3, 3, 3, 3, 3, 3}; // 1 is meat 3 is loot 4 is devil fruit
@@ -174,6 +200,39 @@ void AGame::spawnItem()
 	}
 	sf::Vector2f p;
 	p.x = (std::rand() % 460) + 20; // random value between 20 and 480
-	p.y = -50.0f;
+	p.y = -100.0f; // off screen spawning
+
+	// dont allow items to spawn on top of each other
+	float distance = sqrt((p.x - this->previousItemX) * (p.x - this->previousItemX));
+	while (distance < 32)
+	{
+		p.x = (std::rand() % 460) + 20;
+		distance = sqrt((p.x - this->previousItemX) * (p.x - this->previousItemX));
+	}
+
 	this->items.push_back(new AItem(p, type));
+	this->previousItemX = p.x; // set previous item spawn x coordinate
+}
+
+void AGame::spawnCannonball()
+{
+	/*
+		Spawn Cannonball
+		- random position
+		- cant spawn on previous item starting position
+	*/
+
+	sf::Vector2f p;
+	p.x = (std::rand() % 460) + 20; // random value between 20 and 480
+	p.y = -100.0f; // off screen spawning
+
+	float distance = sqrt((p.x - this->previousItemX) * (p.x - this->previousItemX));
+	while (distance < 32)
+	{
+		p.x = (std::rand() % 460) + 20;
+		distance = sqrt((p.x - this->previousItemX) * (p.x - this->previousItemX));
+	}
+
+	this->items.push_back(new AItem(p, 2));
+	this->previousItemX = p.x;
 }

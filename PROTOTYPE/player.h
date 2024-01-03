@@ -61,5 +61,9 @@ public:
 	- Implement Animition while walking like little footsteps
 	- Display Health and Score Visually
 	- Implement Devilfruits
+	- Start Menu
+	- Restart Screen
+	- continues item and cannonball spawner
+	- grab ability
 
 */

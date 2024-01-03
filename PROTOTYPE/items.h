@@ -28,6 +28,7 @@ public:
 	~AItem();
 
 	// ------------- Accessors ----------------
+	sf::Vector2f getPosition() const;
 
 	// ------------- Modifiers ----------------
 

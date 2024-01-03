@@ -23,6 +23,7 @@ private:
 	APlayer* player;
 
 	std::vector<AItem*> items;
+	float previousItemX;
 
 	// background
 	sf::Texture backgroundTexture;
@@ -53,5 +54,7 @@ public:
 
 	// game functions
 	void checkPlayerCollisions();
+	void checkItemOffscreen(AItem* item, int i);
 	void spawnItem();
+	void spawnCannonball();
 };

@@ -52,13 +52,18 @@ AItem::AItem(sf::Vector2f i_position, int i_type)
 	this->itemCollision.setRadius(16.0f * this->itemScale);
 	this->itemCollision.setOrigin(16.0f * this->itemScale, 16.0f * this->itemScale);
 
-	std::cout << "Item spawned" << std::endl;
+	//std::cout << "Item spawned" << std::endl;
 }
 
 AItem::~AItem()
 {
 	// Destructor
-	std::cout << "Item Destructed" << std::endl;
+	//std::cout << "Item Destructed" << std::endl;
+}
+
+sf::Vector2f AItem::getPosition() const
+{
+	return position;
 }
 
 // ------------- Functions ----------------
@@ -95,6 +100,7 @@ void AItem::update(float deltaTime)
 
 	// Rotating Animation (with random speed between 100 and 150)
 	this->itemSprite.rotate((100 + (std::rand() % 50))* deltaTime);
+
 }
 
 
