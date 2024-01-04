@@ -28,15 +28,36 @@ AItem::AItem(sf::Vector2f i_position, int i_type)
 		// cannon ball
 		if (!this->itemTexture.loadFromFile("assets/cannonball.png")) { std::cout << "Error loading Cannonball Item Image" << std::endl; }
 		this->value = 0;
-		this->speed *= 5.0f;
+		this->speed *= 3.0f;
 
 		break;
 
 	case 3: 
 		// loot 
-		// todo: randomise loot a bit more (like 5 different options with 5 different Textures and Values)
-		if (!itemTexture.loadFromFile("assets/lootplaceholder.png")) { std::cout << "Error loading Loot Item Image" << std::endl; }
-		this->value = 100;
+		int random = std::rand() % 4 + 1; // random between 1 - 5
+		switch (random)
+		{
+		case 1:
+			if (!itemTexture.loadFromFile("assets/loot_1.png")) { std::cout << "Error loading Loot Item Image" << std::endl; }
+			this->value = 100;
+			break;
+		case 2:
+			if (!itemTexture.loadFromFile("assets/loot_2.png")) { std::cout << "Error loading Loot Item Image" << std::endl; }
+			this->value = 125;
+			break;
+		case 3:
+			if (!itemTexture.loadFromFile("assets/loot_3.png")) { std::cout << "Error loading Loot Item Image" << std::endl; }
+			this->value = 50;
+			break;
+		case 4:
+			if (!itemTexture.loadFromFile("assets/loot_4.png")) { std::cout << "Error loading Loot Item Image" << std::endl; }
+			this->value = 75;
+			break;
+		case 5:
+			if (!itemTexture.loadFromFile("assets/loot_5.png")) { std::cout << "Error loading Loot Item Image" << std::endl; }
+			this->value = 150;
+			break;
+		}
 		
 		break;
 	}
@@ -61,9 +82,15 @@ AItem::~AItem()
 	//std::cout << "Item Destructed" << std::endl;
 }
 
+// ------------- Accessors ----------------
 sf::Vector2f AItem::getPosition() const
 {
 	return position;
+}
+
+int AItem::getType() const
+{
+	return type;
 }
 
 // ------------- Functions ----------------

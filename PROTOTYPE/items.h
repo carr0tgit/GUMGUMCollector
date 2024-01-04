@@ -29,6 +29,7 @@ public:
 
 	// ------------- Accessors ----------------
 	sf::Vector2f getPosition() const;
+	int getType() const;
 
 	// ------------- Modifiers ----------------
 

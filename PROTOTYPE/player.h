@@ -10,7 +10,7 @@ class APlayer
 
 	// // ------------- dash ------------------
 	const int dashSpeed = 50;
-	float dashTimer = 4.0f;
+	float dashTimer = 5.0f;
 	bool canDash = true;
 
 	// -------- player variables --------------
@@ -33,7 +33,8 @@ public:
 	APlayer(sf::Vector2f i_position);
 	~APlayer();
 	// ------------- Accessors ----------------
-
+	int getHealth() const;
+	float getDashCooldown() const;
 	// ------------- Modifiers ----------------
 
 	// ------------- Functions ----------------
@@ -51,7 +52,6 @@ public:
 	// Abilities
 	void grabAbility();
 	void dashAbility(float deltaTime);
-	//void dashTimer(float deltaTime);
 
 	void die();
 };
@@ -59,11 +59,10 @@ public:
 // TODO :
 /* 
 	- Implement Animition while walking like little footsteps
-	- Display Health and Score Visually
 	- Implement Devilfruits
 	- Start Menu
 	- Restart Screen
-	- continues item and cannonball spawner
 	- grab ability
+	- Display Dash Timer
 
 */

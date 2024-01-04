@@ -26,6 +26,24 @@ APlayer::~APlayer()
 	// Destructor
 	std::cout << "Player Destructed" << std::endl;
 }
+// ------------- Accessors ----------------
+int APlayer::getHealth() const
+{
+	return this->health;
+}
+
+float APlayer::getDashCooldown() const
+{
+	/*
+		Returns Percentage of Cooldown left
+		0 ... 1
+		0 being dash just used
+		1 being dash is up
+	*/
+	//std::cout << dashTimer << std::endl;
+	if (dashTimer == 5.0f) { return 1.0f; }
+	return 1 - (dashTimer / 5.0f);
+}
 
 // ------------- Functions ----------------
 // Render and Update Function
@@ -58,14 +76,14 @@ void APlayer::update(float deltaTime)
 
 
 	// Update Position
-	position += velocity;
+	this->position += this->velocity;
 
 	// Limiting Player Movement to Stay Inside Playing Area
-	position.x = std::clamp(position.x, 0.0f, 500.0f - this->playerSprite.getGlobalBounds().width);
-	position.y = std::clamp(position.y, 300.0f, 640.0f - this->playerSprite.getGlobalBounds().height);
+	this->position.x = std::clamp(this->position.x, 0.0f, 500.0f - this->playerSprite.getGlobalBounds().width);
+	this->position.y = std::clamp(this->position.y, 300.0f, 640.0f - this->playerSprite.getGlobalBounds().height);
 
 	// Set Sprite Position
-	playerSprite.setPosition(position);
+	this->playerSprite.setPosition(this->position);
 
 
 }
@@ -76,8 +94,8 @@ void APlayer::damage(int damageAmount)
 	/*
 		Damage Player and Check if Player is Dead
 	*/
-	health -= damageAmount;
-	if (health <= 0) { health = 0; APlayer::die(); }
+	this->health -= damageAmount;
+	if (this->health <= 0) { this->health = 0; APlayer::die(); }
 }
 
 void APlayer::heal(int healAmount)
@@ -85,8 +103,8 @@ void APlayer::heal(int healAmount)
 	/*
 		Heal Player
 	*/
-	if (health >= 3) { return; }
-	health += healAmount;
+	if (this->health >= 3) { return; }
+	this->health += healAmount;
 }
 
 // Movement
@@ -139,8 +157,7 @@ void APlayer::dashAbility(float deltaTime)
 		if (this->dashTimer <= 0)
 		{
 			this->canDash = true;
-			this->dashTimer = 4.0f; // reset timer
-			//std::cout << "Can dash!" << std::endl;
+			this->dashTimer = 5.0f; // reset timer
 		}
 	}
 	// dash if space pressed and allowed to 
