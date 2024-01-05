@@ -58,11 +58,11 @@ public:
 
 // TODO :
 /* 
-	- Implement Animition while walking like little footsteps
+	- Implement Particle Animation like Dust Emitter class(position, direction, color)
 	- Implement Devilfruits
 	- Start Menu
 	- Restart Screen
 	- grab ability
-	- Display Dash Timer
+	- add music
 
 */
