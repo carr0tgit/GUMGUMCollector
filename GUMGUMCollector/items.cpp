@@ -14,6 +14,7 @@ AItem::AItem(sf::Vector2f i_position, int i_type)
 		- setup collision
 	*/
 
+	int random;
 	// setup type of item
 	switch (this->type)
 	{
@@ -34,7 +35,7 @@ AItem::AItem(sf::Vector2f i_position, int i_type)
 
 	case 3: 
 		// loot 
-		int random = std::rand() % 4 + 1; // random between 1 - 5
+		random = std::rand() % 4 + 1; // random between 1 - 5
 		switch (random)
 		{
 		case 1:
@@ -60,6 +61,32 @@ AItem::AItem(sf::Vector2f i_position, int i_type)
 		}
 		
 		break;
+
+	case 4:
+		// ope ope no mi devilfruit (law)
+		if (!this->itemTexture.loadFromFile("assets/df_law.png")) { std::cout << "Error loading Ope Ope No Mi Devilfruit Item Image" << std::endl; }
+		this->value = 250;
+
+		break;
+
+	case 5:
+		// ito ito no mi devilfruit (doflamingo)
+		if (!this->itemTexture.loadFromFile("assets/df_dofi.png")) { std::cout << "Error loading Ito Ito No Mi Devilfruit Item Image" << std::endl; }
+		this->value = 250;
+
+		break;
+	case 6:
+		// mera mera no mi (ace :))
+		if (!this->itemTexture.loadFromFile("assets/df_ace.png")) { std::cout << "Error loading Mera Mera No Mi Devilfruit Item Image" << std::endl; }
+		this->value = 250;
+
+		break;
+	case 7:
+		// flames
+		if (!this->itemTexture.loadFromFile("assets/flames.png")) { std::cout << "Error loading Flames Item Image" << std::endl; }
+		this->value = -25;
+		this->speed *= 3.0f;
+
 	}
 	
 	// setup sprite
@@ -126,6 +153,7 @@ void AItem::update(float deltaTime)
 	this->itemSprite.setPosition(this->position);
 
 	// Rotating Animation (with random speed between 100 and 150)
+	if (this->type == 7) { return; }
 	this->itemSprite.rotate((100 + (std::rand() % 50))* deltaTime);
 
 }
@@ -137,22 +165,39 @@ int AItem::onCollision(APlayer &Player)
 		What happens on collision
 		returns item value
 	*/
+	sf::Vector2f p;
 	switch (this->type)
 	{
 	case 1: // meat
 		// Heal Player
 		Player.heal(1);
-
 		break;
 
 	case 2:// cannonball
 		// Damage Player
 		Player.damage(1);
-
 		break;
 
 	case 3: // loot
 		// just gets collected
+		break;
+
+	case 4: // ope ope no mi devilfruit (law)
+		p.x = std::rand() % 500;
+		p.y = std::rand() % 340 + 300;
+		Player.setPosition(p);
+		break;
+
+	case 5: // ope ope no mi devilfruit (law)
+		Player.setCanMove(false);
+		break;
+
+	case 6: // mera mera no mi devilfruit (ace :))
+		// event happens in game class
+		break;
+
+	case 7: // flames
+		Player.damage(1);
 		break;
 	}
 	

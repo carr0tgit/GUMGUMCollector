@@ -61,6 +61,14 @@ private:
 	sf::Sound	s_loot;
 	sf::SoundBuffer b_meat;
 	sf::Sound	s_meat;
+	sf::SoundBuffer b_grab;
+	sf::Sound	s_grab;
+	sf::SoundBuffer b_opeopenomi;
+	sf::Sound	s_opeopenomi;
+	sf::SoundBuffer b_hitohitonomi;
+	sf::Sound	s_hitohitonomi;
+	sf::SoundBuffer b_merameranomi;
+	sf::Sound	s_merameranomi;
 
 	// ------------- Initialization ----------- 
 	void initWindow();
@@ -95,6 +103,7 @@ public:
 	void checkItemOffscreen(AItem* item, int i);
 	void spawnItem();
 	void spawnCannonball();
+	void spawnFlames();
 	void mouseUpdate();
 
 	// visuals stuff
@@ -108,4 +117,8 @@ public:
 	void cannonHitSound();
 	void lootSound();
 	void meatSound();
+	void grabSound();
+	void opeopenomiSound();
+	void hitohitonomiSound();
+	void merameranomiSound();
 };

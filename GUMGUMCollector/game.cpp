@@ -74,7 +74,7 @@ void AGame::initSounds()
 	//cannon shot
 	if (!this->b_cannon.loadFromFile("assets/sounds/cannon_fire.wav")) { std::cout << "Error Loading Cannon Sound" << std::endl; }
 	this->s_cannon.setBuffer(this->b_cannon);
-	this->s_cannon.setVolume(soundVolume);
+	this->s_cannon.setVolume(soundVolume * 0.65f);
 	//cannon hit
 	if (!this->b_cannonHit.loadFromFile("assets/sounds/cannon_hit.wav")) { std::cout << "Error Loading Cannon Sound" << std::endl; }
 	this->s_cannonHit.setBuffer(this->b_cannonHit);
@@ -84,9 +84,25 @@ void AGame::initSounds()
 	this->s_loot.setBuffer(this->b_loot);
 	this->s_loot.setVolume(soundVolume);
 	//meat collected
-	if (!this->b_meat.loadFromFile("assets/sounds/meat_collected.wav")) { std::cout << "Error Loading Loot Collected Sound" << std::endl; }
+	if (!this->b_meat.loadFromFile("assets/sounds/meat_collected.wav")) { std::cout << "Error Loading Meat Collected Sound" << std::endl; }
 	this->s_meat.setBuffer(this->b_meat);
 	this->s_meat.setVolume(soundVolume);
+	//grab
+	if (!this->b_grab.loadFromFile("assets/sounds/grab.wav")) { std::cout << "Error Loading Grab  Sound" << std::endl; }
+	this->s_grab.setBuffer(this->b_grab);
+	this->s_grab.setVolume(soundVolume * 0.8f);
+	//ope ope no mi
+	if (!this->b_opeopenomi.loadFromFile("assets/sounds/df_law.wav")) { std::cout << "Error Loading Ope Ope No Mi Sound" << std::endl; }
+	this->s_opeopenomi.setBuffer(this->b_opeopenomi);
+	this->s_opeopenomi.setVolume(soundVolume * 0.8f);
+	//hito hito no mi
+	if (!this->b_hitohitonomi.loadFromFile("assets/sounds/df_dofi.wav")) { std::cout << "Error Loading Hito Hito No Mi Sound" << std::endl; }
+	this->s_hitohitonomi.setBuffer(this->b_hitohitonomi);
+	this->s_hitohitonomi.setVolume(soundVolume * 0.8f);
+	//mera mera no mi
+	if (!this->b_merameranomi.loadFromFile("assets/sounds/df_ace.wav")) { std::cout << "Error Loading Mera Mera No Mi Sound" << std::endl; }
+	this->s_merameranomi.setBuffer(this->b_merameranomi);
+	this->s_merameranomi.setVolume(soundVolume * 0.8f);
 }
 
 // ------ Constructor and Destructor ------
@@ -158,6 +174,7 @@ void AGame::update(float deltaTime)
 	this->mouseUpdate();
 	// player
 	this->player->update(deltaTime, this->mousePosition);
+	if (this->player->getGrabSound()) { this->grabSound(); this->player->setGrabSound(false); }
 
 	// items
 	int i = 0;
@@ -179,7 +196,8 @@ void AGame::update(float deltaTime)
 	{
 		this->cannonTimer = (std::rand() % 10) * -0.05f; // randomise a bit more
 		this->spawnCannonball();
-		if (cannonReload > 0.35f)
+		this->spawnCannonball();
+		if (cannonReload > 0.4f)
 		{
 			this->cannonReload -= (std::rand() % 10) * 0.02f;
 		}
@@ -244,11 +262,35 @@ void AGame::checkPlayerCollisions()
 			// sound
 			if (j->getType() == 3) { this->lootSound(); } //loot
 			else if (j->getType() == 2) { this->cannonHitSound(); } // cannonball
-			else if (j->getType() == 1) { this->meatSound(); }
+			else if (j->getType() == 1) { this->meatSound(); } // meat
+			else if (j->getType() == 4) { this->opeopenomiSound(); } // ope ope no mi (law)
+			else if (j->getType() == 5) { this->hitohitonomiSound(); } // hito hito no mi (doflamingo)
 
 			this->items.erase(items.begin() + i); // erase item out of vector
 			j->~AItem(); // call deconstructor
 		}
+
+		//hand collision check
+		dx = this->player->handCollision.getPosition().x - j->itemCollision.getPosition().x;
+		dx = sqrt(dx * dx);
+		dy = this->player->handCollision.getPosition().y - j->itemCollision.getPosition().y;
+		dy = sqrt(dy * dy);
+
+		if ((dx + dy) <= (this->player->handCollision.getRadius() + j->itemCollision.getRadius()) && this->player->getIsGrabbing())
+		{
+			score += j->onCollision(*player); // collect or activate item
+			// sound
+			if (j->getType() == 3) { this->lootSound(); } //loot
+			else if (j->getType() == 2 || j->getType() == 7) { this->cannonHitSound(); } // cannonball or flames
+			else if (j->getType() == 1) { this->meatSound(); } // meat
+			else if (j->getType() == 4) { this->opeopenomiSound(); } // ope ope no mi (law)
+			else if (j->getType() == 5) { this->hitohitonomiSound(); } // hito hito no mi (doflamingo)
+			else if (j->getType() == 6) { this->merameranomiSound(); this->spawnFlames(); } // mera mera no mi (ace :))
+
+			this->items.erase(items.begin() + i); // erase item out of vector
+			j->~AItem(); // call deconstructor
+		}
+
 		i++;
 	}
 }
@@ -278,19 +320,18 @@ void AGame::spawnItem()
 		- check if spawn position is to close to last one
 	*/
 	//AItem item(sf::Vector2f(20.0f, 20.0f), 1);
-	// probability = 80 % loot , 10 % meat , 10 % devilfruits
-	int probability[10] = { 1, 4, 3, 3, 3, 3, 3, 3, 3, 3}; // 1 is meat 3 is loot 4 is devil fruit
+	// probability = 88 % loot , 6 % meat , 6 % devilfruits
+	int probability[15] = { 1, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}; // 1 is meat 3 is loot 4 is devil fruit
 	int devilfruits[3] = { 4, 5, 6 };
 	int type; 
 	
 	// if it selects 4 than choose between random devilfruits
 	// else choose between meat and loot
-	int choice = std::rand() % 10;
+	int choice = std::rand() % 15;
 	if (probability[choice] == 4) 
 	{
 		choice = std::rand() % 3;
-		//type = devilfruits[choice];
-		type = 3; // todo: implement devilfruits
+		type = devilfruits[choice];
 	}
 	else
 	{
@@ -343,6 +384,19 @@ void AGame::spawnCannonball()
 	this->cannonSound();
 	this->previousCannonX = p.x;
 	this->cannonTotal++;
+}
+
+void AGame::spawnFlames()
+{
+	/*
+		Spawn Cannonball
+		- random position
+		- target player
+	*/
+	sf::Vector2f p;
+	p.x = this->player->getPosition().x + this->player->playerCollision.getRadius();
+	p.y = -100.0f; // off screen spawning
+	this->items.push_back(new AItem(p, 7));
 }
 
 void AGame::mouseUpdate()
@@ -415,4 +469,24 @@ void AGame::lootSound()
 void AGame::meatSound()
 {
 	this->s_meat.play();
+}
+
+void AGame::grabSound()
+{
+	this->s_grab.play();
+}
+
+void AGame::opeopenomiSound()
+{
+	this->s_opeopenomi.play();
+}
+
+void AGame::hitohitonomiSound()
+{
+	this->s_hitohitonomi.play();
+}
+
+void AGame::merameranomiSound()
+{
+	this->s_merameranomi.play();
 }

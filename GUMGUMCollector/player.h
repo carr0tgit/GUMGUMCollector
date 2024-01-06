@@ -8,6 +8,9 @@ class APlayer
 	sf::Vector2f velocity;
 	sf::Vector2f playerInput;
 
+	bool canMove = true;
+	float rootTimer = 1.0f;
+
 	sf::Vector2i mousePosition;
 
 	// --------------- dash ------------------
@@ -16,10 +19,14 @@ class APlayer
 	bool canDash = true;
 
 	// --------------- grab ------------------
+	bool startGrabbing = false;
 	bool isGrabbing = false;
+	bool grabSound = false;
+
 	sf::RectangleShape arm;
 	sf::Vector2f grabPoint;
-	float grabTimer = 2.0f;
+	float grabTimer = 1.0f;
+	float grabDistance = 0.0f; // 0 ... 1 
 
 	// -------- player variables --------------
 	int health = 3;
@@ -30,11 +37,20 @@ class APlayer
 	sf::Texture playerTexture;
 	const float playerScale = 1.33f;
 
+	// hand
+	sf::Sprite handSprite;
+	sf::Texture handTexture;
+
+	// strings
+	sf::Sprite stringsSprite;
+	sf::Texture stringsTexture;
+
 
 
 public: 
 	// -------- Collision Variable ------------
 	sf::CircleShape playerCollision;
+	sf::CircleShape handCollision;
 	
 
 	// -------- Constructor and Destructor ----
@@ -44,8 +60,12 @@ public:
 	int getHealth() const;
 	float getDashCooldown() const;
 	sf::Vector2f getPosition() const;
+	bool getIsGrabbing() const;
+	bool getGrabSound() const;
 	// ------------- Modifiers ----------------
-
+	void setGrabSound(bool i_b);
+	void setPosition(sf::Vector2f i_position);
+	void setCanMove(bool i_b);
 	// ------------- Functions ----------------
 	// Render and Update Function
 	void draw(sf::RenderWindow& i_window) const;
@@ -58,8 +78,6 @@ public:
 	// Movement
 	void calculateMovement(float deltaTime);
 
-	// Mouse
-
 	// Abilities
 	void grabAbility(float deltaTime);
 	void dashAbility(float deltaTime);
@@ -69,11 +87,8 @@ public:
 
 // TODO :
 /* 
-	- Implement Particle Animation like Dust Emitter class(position, direction, color)
-	- Implement Devilfruits
 	- Start Menu
 	- Restart Screen
-	- grab ability
 	- add music
 	- better cannonball scaling / distrubition over game
 

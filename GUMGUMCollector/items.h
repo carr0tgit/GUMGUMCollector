@@ -5,14 +5,14 @@
 class AItem
 {
 private:
-	// 1 meat 2 cannon ball 3 loot 4... df
+	// 1 meat 2 cannon ball 3 loot 4 ope ope no mi 5 hito hito no mi 6 mera mera no mi 7 flames
 	int type; 
 	int value;
 
 	// position and movement
 	sf::Vector2f position;
 	sf::Vector2f velocity;
-	float speed = 75.0f + std::rand() % 40;
+	float speed = 70.0f + std::rand() % 55;
 
 	// visuals
 	sf::Sprite itemSprite;
