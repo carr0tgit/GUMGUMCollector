@@ -27,7 +27,7 @@ AItem::AItem(sf::Vector2f i_position, int i_type)
 	case 2:
 		// cannon ball
 		if (!this->itemTexture.loadFromFile("assets/cannonball.png")) { std::cout << "Error loading Cannonball Item Image" << std::endl; }
-		this->value = 0;
+		this->value = -25;
 		this->speed *= 3.0f;
 
 		break;

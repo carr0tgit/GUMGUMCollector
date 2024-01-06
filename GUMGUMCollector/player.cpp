@@ -45,6 +45,11 @@ float APlayer::getDashCooldown() const
 	return 1 - (dashTimer / 5.0f);
 }
 
+sf::Vector2f APlayer::getPosition() const
+{
+	return this->position;
+}
+
 // ------------- Functions ----------------
 // Render and Update Function
 void APlayer::draw(sf::RenderWindow& i_window) const
@@ -52,10 +57,14 @@ void APlayer::draw(sf::RenderWindow& i_window) const
 	/*
 		Render Player
 	*/
+	if (this->isGrabbing)
+	{
+		i_window.draw(this->arm);
+	}
 	i_window.draw(this->playerSprite);
 }
 
-void APlayer::update(float deltaTime)
+void APlayer::update(float deltaTime, sf::Vector2i i_mousePosition)
 {
 	/*
 		Update Player
@@ -69,10 +78,15 @@ void APlayer::update(float deltaTime)
 
 	// Movement
 	this->calculateMovement(deltaTime);
+
+	// Mouse
+	this->mousePosition = i_mousePosition;
 	
 	// Abilities
 	// Dash
 	this->dashAbility(deltaTime);
+	// Grab
+	this->grabAbility(deltaTime);
 
 
 	// Update Position
@@ -138,9 +152,45 @@ void APlayer::calculateMovement(float deltaTime)
 }
 
 // Abilities
-void APlayer::grabAbility()
+void APlayer::grabAbility(float deltaTime)
 {
-	return;
+
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left) && !isGrabbing)
+	{
+		this->grabPoint.x = this->mousePosition.x;
+		this->grabPoint.y = this->mousePosition.y;
+		this->isGrabbing = true;
+	}
+	if (!sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		this->isGrabbing = false;
+	}
+
+	if (this->isGrabbing)
+	{
+		float dx = this->playerCollision.getPosition().x - this->grabPoint.x;
+		float dy = this->playerCollision.getPosition().y - this->grabPoint.y;
+		float distance = sqrt((dx * dx) + (dy * dy));
+
+		if (playerCollision.getPosition().x > this->grabPoint.x)
+		{
+			distance *= -1.0f;
+		}
+
+		float angle = asin(dy / distance);
+		angle *= 180 / 3.1415; // convert to degree 
+		
+		std::cout << "dy: " << dy << std::endl;
+		std::cout << "Distance: " << distance << std::endl;
+		std::cout << "Angle: " << angle << std::endl;
+		
+
+		this->arm.setSize(sf::Vector2f(distance, 10.0f));
+		this->arm.setOrigin(sf::Vector2(0.0f, 5.0f));
+		this->arm.setPosition(this->playerCollision.getPosition());
+		this->arm.setRotation(-angle);
+	}
 }
 
 void APlayer::dashAbility(float deltaTime)

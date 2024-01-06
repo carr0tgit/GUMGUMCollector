@@ -29,6 +29,10 @@ private:
 	float itemTimer;
 	float cannonTimer;
 	float cannonReload; // how long till next shot
+	int cannonTotal; // counts cannon shots
+
+	// mouse position
+	sf::Vector2i mousePosition;
 
 	// background
 	sf::Texture backgroundTexture;
@@ -44,6 +48,9 @@ private:
 	sf::Sprite dashbarSprite;
 	sf::Texture dashbarTexture2;
 	sf::Sprite dashbarSprite2;
+
+	sf::Texture cursorTexture;
+	sf::Sprite cursorSprite;
 
 	// sounds
 	sf::SoundBuffer b_cannon;
@@ -67,7 +74,7 @@ public:
 	~AGame();
 
 	// ------------- Accessors ----------------
-
+	sf::Vector2i getMousePosition() const;
 	// ------------- Modifiers ----------------
 
 	// ------------- Functions ----------------
@@ -79,14 +86,22 @@ public:
 	void update(float deltaTime);
 	void render();
 
+	// game state 
+	//void titleScreen();
+
 	// game functions
+
 	void checkPlayerCollisions();
 	void checkItemOffscreen(AItem* item, int i);
 	void spawnItem();
 	void spawnCannonball();
+	void mouseUpdate();
+
+	// visuals stuff
 	void displayHealth();
 	void displayScore();
 	void displayDashbar();
+	void displayCursor();
 
 	// sound
 	void cannonSound();

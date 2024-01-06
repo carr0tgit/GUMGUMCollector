@@ -10,6 +10,7 @@ void AGame::initWindow()
 
 	this->videoMode = sf::VideoMode(640, 640);
 	this->window = new sf::RenderWindow(this->videoMode, "GUM GUM Collector", sf::Style::Close | sf::Style::Titlebar);
+	this->window->setMouseCursorVisible(false);
 }
 
 void AGame::initGameObjects()
@@ -39,6 +40,7 @@ void AGame::initGameObjects()
 	this->scoreText.setFont(this->font);
 	this->scoreText.setCharacterSize(25);
 	this->scoreText.setFillColor(sf::Color::White);
+	//this->scoreText.setOrigin(sf::Vector2f(16.0f, 0.0f));
 	this->scoreText.setPosition(sf::Vector2f(517, 23));
 
 	// dashbar
@@ -50,11 +52,17 @@ void AGame::initGameObjects()
 	this->dashbarSprite2.setTexture(this->dashbarTexture2);
 	this->dashbarSprite2.setPosition(sf::Vector2f(521, 147));
 
+	// cursor
+	if (!this->cursorTexture.loadFromFile("assets/cursor.png")) { std::cout << "Error loading Cursor Image" << std::endl; }
+	this->cursorSprite.setTexture(this->cursorTexture);
+	this->cursorSprite.setOrigin(sf::Vector2f(16.0f, 16.0f));
+
 	// items
 	this->previousItemX = 0.0f;
 	this->itemTimer = 0.0f;
 	this->cannonTimer = 0.0f;
 	this->cannonReload = 3.0f;
+	this->cannonTotal = 0;
 
 }
 
@@ -97,6 +105,10 @@ AGame::~AGame()
 }
 
 // ------------- Accessors ----------------
+sf::Vector2i AGame::getMousePosition() const
+{
+	return this->mousePosition;
+}
 
 // ------------- Modifiers ----------------
 
@@ -142,8 +154,10 @@ void AGame::update(float deltaTime)
 	this->pollEvents();
 
 	// ------------ game ----------------
+	// mouse
+	this->mouseUpdate();
 	// player
-	this->player->update(deltaTime);
+	this->player->update(deltaTime, this->mousePosition);
 
 	// items
 	int i = 0;
@@ -168,15 +182,6 @@ void AGame::update(float deltaTime)
 		if (cannonReload > 0.35f)
 		{
 			this->cannonReload -= (std::rand() % 10) * 0.02f;
-		}
-		if (cannonReload > 1.5f) 
-		{
-			this->spawnCannonball();
-			this->spawnCannonball();
-		}
-		else if (cannonReload > 0.5)
-		{
-			this->spawnCannonball();
 		}
 	}
 	this->cannonTimer += deltaTime;
@@ -208,6 +213,8 @@ void AGame::render()
 	this->displayScore();
 	//dashbar
 	this->displayDashbar();
+	//cursor
+	this->displayCursor();
 
 	this->window->display();
 }
@@ -311,11 +318,19 @@ void AGame::spawnCannonball()
 		Spawn Cannonball
 		- random position
 		- cant spawn on previous item starting position
+		- target player roughly at least every 3rd shot
 	*/
 
 	sf::Vector2f p;
 	p.x = (std::rand() % 460) + 20; // random value between 20 and 480
 	p.y = -100.0f; // off screen spawning
+
+
+	if(this->cannonTotal % 3 == 1) // start with second shot 
+	{
+		p.x = this->player->getPosition().x + this->player->playerCollision.getRadius(); // target center of player
+	}
+	
 
 	float distance = sqrt((p.x - this->previousCannonX) * (p.x - this->previousCannonX));
 	while (distance < 32)
@@ -327,8 +342,23 @@ void AGame::spawnCannonball()
 	this->items.push_back(new AItem(p, 2));
 	this->cannonSound();
 	this->previousCannonX = p.x;
+	this->cannonTotal++;
 }
 
+void AGame::mouseUpdate()
+{
+	/*
+		Set Mouse Position Relative to Window
+		Set Cursor Sprite Position
+	*/
+	this->mousePosition = sf::Mouse::getPosition(*this->window);
+	sf::Vector2f p;
+	p.x = this->mousePosition.x;
+	p.y = this->mousePosition.y;
+	this->cursorSprite.setPosition(p);
+}
+
+// visual stuff
 void AGame::displayHealth()
 {
 	for (int i = 0; i < this->player->getHealth(); i++)
@@ -358,6 +388,11 @@ void AGame::displayDashbar()
 	int dashbarx = 100 * this->player->getDashCooldown();
 	this->dashbarSprite.setTextureRect(sf::IntRect(p,sf::Vector2i(dashbarx, 32)));
 	this->window->draw(this->dashbarSprite);
+}
+
+void AGame::displayCursor()
+{
+	this->window->draw(this->cursorSprite);
 }
 
 
