@@ -7,35 +7,39 @@ class APlayer
 	sf::Vector2f position;
 	sf::Vector2f velocity;
 	sf::Vector2f playerInput;
-
+	// locking movement
 	bool canMove = true;
-	float rootTimer = 1.0f;
-
+	float rootTimer = 1.0f; 
+	// mouse
 	sf::Vector2i mousePosition;
 
 	// --------------- dash ------------------
 	const int dashSpeed = 50;
 	float dashTimer = 5.0f;
 	bool canDash = true;
+	bool dashSound = false;
 
 	// --------------- grab ------------------
 	bool startGrabbing = false;
 	bool isGrabbing = false;
 	bool grabSound = false;
 
-	sf::RectangleShape arm;
-	sf::Vector2f grabPoint;
+	sf::Vector2f grabPoint; // target location
 	float grabTimer = 1.0f;
-	float grabDistance = 0.0f; // 0 ... 1 
+	float grabDistance = 0.0f; // value between 0 and 1 with 1 being max distance
 
 	// -------- player variables --------------
 	int health = 3;
 	const int speed = 75;
 
 	// ------------- visuals ------------------
+	// player (body/hat)
 	sf::Sprite playerSprite;
 	sf::Texture playerTexture;
 	const float playerScale = 1.33f;
+
+	//arm
+	sf::RectangleShape arm;
 
 	// hand
 	sf::Sprite handSprite;
@@ -61,11 +65,15 @@ public:
 	float getDashCooldown() const;
 	sf::Vector2f getPosition() const;
 	bool getIsGrabbing() const;
+	// sounds
 	bool getGrabSound() const;
+	bool getDashSound() const;
 	// ------------- Modifiers ----------------
-	void setGrabSound(bool i_b);
 	void setPosition(sf::Vector2f i_position);
 	void setCanMove(bool i_b);
+	// sounds
+	void setGrabSound(bool i_b);
+	void setDashSound(bool i_b);
 	// ------------- Functions ----------------
 	// Render and Update Function
 	void draw(sf::RenderWindow& i_window) const;
@@ -81,15 +89,11 @@ public:
 	// Abilities
 	void grabAbility(float deltaTime);
 	void dashAbility(float deltaTime);
-
-	void die();
 };
 
 // TODO :
 /* 
 	- Start Menu
-	- Restart Screen
 	- add music
-	- better cannonball scaling / distrubition over game
 
 */

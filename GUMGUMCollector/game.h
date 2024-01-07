@@ -20,12 +20,14 @@ private:
 	// ------------- settings -----------------
 	float soundVolume = 50.0f;
 	// ------------- game objects -------------
+	bool gameover = false;
+	bool ingame = false;
 	int score = 0;
 	APlayer* player;
 
 	std::vector<AItem*> items;
-	float previousItemX;
-	float previousCannonX;
+	float previousItemX; // x location of previous spawned item
+	float previousCannonX; // x location of previous spawned cannonball
 	float itemTimer;
 	float cannonTimer;
 	float cannonReload; // how long till next shot
@@ -33,24 +35,30 @@ private:
 
 	// mouse position
 	sf::Vector2i mousePosition;
-
+	// font
+	sf::Font font;
+	// main menu
+	sf::Texture menuTexture;
+	sf::Sprite menuSprite;
 	// background
 	sf::Texture backgroundTexture;
 	sf::Sprite backgroundSprite;
-
+	// score
 	sf::Text scoreText;
-	sf::Font font;
-
+	// health
 	sf::Texture healthTexture;
 	sf::Sprite healthSprite[3];
-
+	// dashbar
 	sf::Texture dashbarTexture;
 	sf::Sprite dashbarSprite;
 	sf::Texture dashbarTexture2;
 	sf::Sprite dashbarSprite2;
-
+	// cursor
 	sf::Texture cursorTexture;
 	sf::Sprite cursorSprite;
+	// gameover
+	sf::Text gameoverText;
+	sf::RectangleShape gameoverRectangle;
 
 	// sounds
 	sf::SoundBuffer b_cannon;
@@ -69,11 +77,14 @@ private:
 	sf::Sound	s_hitohitonomi;
 	sf::SoundBuffer b_merameranomi;
 	sf::Sound	s_merameranomi;
+	sf::SoundBuffer b_dash;
+	sf::Sound	s_dash;
 
 	// ------------- Initialization ----------- 
 	void initWindow();
 	void initGameObjects();
 	void initSounds();
+	void initVisuals();
 
 
 public:
@@ -82,7 +93,7 @@ public:
 	~AGame();
 
 	// ------------- Accessors ----------------
-	sf::Vector2i getMousePosition() const;
+
 	// ------------- Modifiers ----------------
 
 	// ------------- Functions ----------------
@@ -91,14 +102,15 @@ public:
 	void pollEvents();
 
 	// update and render functions
+	void run();
 	void update(float deltaTime);
 	void render();
 
-	// game state 
-	//void titleScreen();
+	// main menu
+	void mainMenu();
 
 	// game functions
-
+	void startGame();
 	void checkPlayerCollisions();
 	void checkItemOffscreen(AItem* item, int i);
 	void spawnItem();
@@ -111,6 +123,7 @@ public:
 	void displayScore();
 	void displayDashbar();
 	void displayCursor();
+	void displayGameOver();
 
 	// sound
 	void cannonSound();
@@ -121,4 +134,5 @@ public:
 	void opeopenomiSound();
 	void hitohitonomiSound();
 	void merameranomiSound();
+	void dashSound();
 };

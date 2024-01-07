@@ -21,45 +21,16 @@ void AGame::initGameObjects()
 	// player
 	player = new APlayer(sf::Vector2f(230, 450));
 
-	// background
-	if (!this->backgroundTexture.loadFromFile("assets/background.png")) { std::cout << "Error loading Background Image" << std::endl; }
-	this->backgroundSprite.setTexture(this->backgroundTexture);
-	this->backgroundSprite.setPosition(sf::Vector2f(0, 0));
-
-	// health
-	if (!this->healthTexture.loadFromFile("assets/heart.png")) { std::cout << "Error loading Heart Image" << std::endl; }
-	this->healthSprite[0].setTexture(this->healthTexture);
-	this->healthSprite[0].setPosition(sf::Vector2f(517, 86));
-	this->healthSprite[1].setTexture(this->healthTexture);
-	this->healthSprite[1].setPosition(sf::Vector2f(556, 86));
-	this->healthSprite[2].setTexture(this->healthTexture);
-	this->healthSprite[2].setPosition(sf::Vector2f(595, 86));
-
-	// font / score
-	if (!this->font.loadFromFile("assets/font/font.ttf")) { std::cout << "Error loading Font" << std::endl; }
-	this->scoreText.setFont(this->font);
-	this->scoreText.setCharacterSize(25);
-	this->scoreText.setFillColor(sf::Color::White);
-	//this->scoreText.setOrigin(sf::Vector2f(16.0f, 0.0f));
-	this->scoreText.setPosition(sf::Vector2f(517, 23));
-
-	// dashbar
-	if (!this->dashbarTexture.loadFromFile("assets/dashbar.png")) { std::cout << "Error loading Dashbar Image" << std::endl; }
-	this->dashbarSprite.setTexture(this->dashbarTexture);
-	this->dashbarSprite.setPosition(sf::Vector2f(521, 147));
-
-	if (!this->dashbarTexture2.loadFromFile("assets/dashbar2.png")) { std::cout << "Error loading Dashbar2 Image" << std::endl; }
-	this->dashbarSprite2.setTexture(this->dashbarTexture2);
-	this->dashbarSprite2.setPosition(sf::Vector2f(521, 147));
-
-	// cursor
-	if (!this->cursorTexture.loadFromFile("assets/cursor.png")) { std::cout << "Error loading Cursor Image" << std::endl; }
-	this->cursorSprite.setTexture(this->cursorTexture);
-	this->cursorSprite.setOrigin(sf::Vector2f(16.0f, 16.0f));
+	//score
+	this->score = 0;
 
 	// items
 	this->previousItemX = 0.0f;
 	this->itemTimer = 0.0f;
+	this->items.erase(items.begin(),items.end());
+
+	// cannon
+	this->previousCannonX = 0.0f;
 	this->cannonTimer = 0.0f;
 	this->cannonReload = 3.0f;
 	this->cannonTotal = 0;
@@ -103,6 +74,68 @@ void AGame::initSounds()
 	if (!this->b_merameranomi.loadFromFile("assets/sounds/df_ace.wav")) { std::cout << "Error Loading Mera Mera No Mi Sound" << std::endl; }
 	this->s_merameranomi.setBuffer(this->b_merameranomi);
 	this->s_merameranomi.setVolume(soundVolume * 0.8f);
+	// dash
+	if (!this->b_dash.loadFromFile("assets/sounds/dash.wav")) { std::cout << "Error Loading Dash Sound" << std::endl; }
+	this->s_dash.setBuffer(this->b_dash);
+	this->s_dash.setVolume(soundVolume * 0.8f);
+}
+
+void AGame::initVisuals()
+{
+	/*
+		Initialize Visuals
+		- background
+		- "interface"
+	*/
+
+	// background
+	if (!this->backgroundTexture.loadFromFile("assets/background.png")) { std::cout << "Error loading Background Image" << std::endl; }
+	this->backgroundSprite.setTexture(this->backgroundTexture);
+	this->backgroundSprite.setPosition(sf::Vector2f(0, 0));
+
+	// health
+	if (!this->healthTexture.loadFromFile("assets/heart.png")) { std::cout << "Error loading Heart Image" << std::endl; }
+	this->healthSprite[0].setTexture(this->healthTexture);
+	this->healthSprite[0].setPosition(sf::Vector2f(517, 86));
+	this->healthSprite[1].setTexture(this->healthTexture);
+	this->healthSprite[1].setPosition(sf::Vector2f(556, 86));
+	this->healthSprite[2].setTexture(this->healthTexture);
+	this->healthSprite[2].setPosition(sf::Vector2f(595, 86));
+
+	// font
+	if (!this->font.loadFromFile("assets/font/font.ttf")) { std::cout << "Error loading Font" << std::endl; }
+	
+	// score
+	this->scoreText.setFont(this->font);
+	this->scoreText.setCharacterSize(25);
+	this->scoreText.setFillColor(sf::Color::White);
+	this->scoreText.setPosition(sf::Vector2f(517, 23));
+
+	// dashbar
+	if (!this->dashbarTexture.loadFromFile("assets/dashbar.png")) { std::cout << "Error loading Dashbar Image" << std::endl; }
+	this->dashbarSprite.setTexture(this->dashbarTexture);
+	this->dashbarSprite.setPosition(sf::Vector2f(521, 147));
+
+	if (!this->dashbarTexture2.loadFromFile("assets/dashbar2.png")) { std::cout << "Error loading Dashbar2 Image" << std::endl; }
+	this->dashbarSprite2.setTexture(this->dashbarTexture2);
+	this->dashbarSprite2.setPosition(sf::Vector2f(521, 147));
+
+	// cursor
+	if (!this->cursorTexture.loadFromFile("assets/cursor.png")) { std::cout << "Error loading Cursor Image" << std::endl; }
+	this->cursorSprite.setTexture(this->cursorTexture);
+	this->cursorSprite.setOrigin(sf::Vector2f(16.0f, 16.0f));
+
+	// gameover
+	this->gameoverText.setFont(this->font);
+	this->gameoverText.setCharacterSize(50);
+	this->gameoverText.setFillColor(sf::Color::White);
+	this->gameoverText.setPosition(sf::Vector2f(75, 150));
+	this->gameoverText.setString("Game Over!\nScore:\nPress Spacebar\nto Continue");
+
+	this->gameoverRectangle.setPosition(sf::Vector2f(0, 0));
+	this->gameoverRectangle.setFillColor(sf::Color(100, 100, 100, 100));
+	this->gameoverRectangle.setSize(sf::Vector2f(640, 640));
+
 }
 
 // ------ Constructor and Destructor ------
@@ -110,8 +143,6 @@ AGame::AGame()
 {
 	// Initialization
 	this->initWindow();
-	this->initGameObjects();
-	this->initSounds();
 }
 
 AGame::~AGame()
@@ -121,10 +152,6 @@ AGame::~AGame()
 }
 
 // ------------- Accessors ----------------
-sf::Vector2i AGame::getMousePosition() const
-{
-	return this->mousePosition;
-}
 
 // ------------- Modifiers ----------------
 
@@ -156,6 +183,29 @@ void AGame::pollEvents()
 	}
 }
 
+void AGame::run()
+{
+	// Initialize deltaTime
+	sf::Clock clock;
+	float deltaTime = 0.0f;
+
+
+	while (this->running())
+	{
+		if(!this->ingame) 
+		{
+			this->mainMenu();
+		}
+		else
+		{
+			deltaTime = clock.restart().asSeconds();
+			this->update(deltaTime);
+			this->render();
+		}
+
+	}
+}
+
 // update and render functions
 void AGame::update(float deltaTime)
 {
@@ -168,14 +218,24 @@ void AGame::update(float deltaTime)
 
 	//sfml 
 	this->pollEvents();
-
-	// ------------ game ----------------
 	// mouse
 	this->mouseUpdate();
+
+
+	if (this->gameover) 
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		{
+			this->ingame = false;
+		}
+		return; 
+	}
+
+	// ------------ game ----------------
 	// player
 	this->player->update(deltaTime, this->mousePosition);
 	if (this->player->getGrabSound()) { this->grabSound(); this->player->setGrabSound(false); }
-
+	if (this->player->getDashSound()) { this->dashSound(); this->player->setDashSound(false); }
 	// items
 	int i = 0;
 	for (auto *j : this->items)
@@ -204,8 +264,6 @@ void AGame::update(float deltaTime)
 	}
 	this->cannonTimer += deltaTime;
 	
-	
-
 	// collision
 	this->checkPlayerCollisions();
 }
@@ -227,17 +285,63 @@ void AGame::render()
 	}
 	//health
 	this->displayHealth();
-	//score
-	this->displayScore();
 	//dashbar
 	this->displayDashbar();
 	//cursor
 	this->displayCursor();
 
+	if (this->gameover)
+	{
+		this->displayGameOver();
+	}
+
+	//score
+	this->displayScore();
+
 	this->window->display();
 }
+// game states
+
+void AGame::mainMenu()
+{
+	/*
+		Main Menu
+		- Spacebar to start game
+		- Up/Down to change volume
+	*/
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) { this->startGame();}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) { this->soundVolume += 10.0f; if (this->soundVolume > 100) { this->soundVolume = 100.0f; } }
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) { this->soundVolume -= 10.0f; if (this->soundVolume < 0) { this->soundVolume = 0.0f; }}
+
+	std::cout << "In Menu" << std::endl;
+}
+
 
 // game functions
+void AGame::startGame()
+{
+	/*
+		Start Game
+		- Reset all game variables
+		- set ingame to true
+		- set gameover to false
+	*/
+
+	//player
+	if (this->player != nullptr)
+	{
+		this->player->~APlayer();
+	}
+	
+	this->initGameObjects();
+	this->initVisuals();
+	this->initSounds();
+
+	this->ingame = true;
+	this->gameover = false;
+}
+
+
 void AGame::checkPlayerCollisions()
 {
 	/*
@@ -259,12 +363,17 @@ void AGame::checkPlayerCollisions()
 		if ((dx + dy) <= (this->player->playerCollision.getRadius() + j->itemCollision.getRadius()))
 		{
 			score += j->onCollision(*player); // collect or activate item
+			if (this->player->getHealth() == 0)
+			{
+				this->gameover = true;
+			}
 			// sound
 			if (j->getType() == 3) { this->lootSound(); } //loot
 			else if (j->getType() == 2) { this->cannonHitSound(); } // cannonball
 			else if (j->getType() == 1) { this->meatSound(); } // meat
 			else if (j->getType() == 4) { this->opeopenomiSound(); } // ope ope no mi (law)
 			else if (j->getType() == 5) { this->hitohitonomiSound(); } // hito hito no mi (doflamingo)
+			else if (j->getType() == 6) { this->merameranomiSound(); this->spawnFlames(); } // mera mera no mi (ace :))
 
 			this->items.erase(items.begin() + i); // erase item out of vector
 			j->~AItem(); // call deconstructor
@@ -279,6 +388,10 @@ void AGame::checkPlayerCollisions()
 		if ((dx + dy) <= (this->player->handCollision.getRadius() + j->itemCollision.getRadius()) && this->player->getIsGrabbing())
 		{
 			score += j->onCollision(*player); // collect or activate item
+			if (this->player->getHealth() == 0)
+			{
+				this->gameover = true;
+			}
 			// sound
 			if (j->getType() == 3) { this->lootSound(); } //loot
 			else if (j->getType() == 2 || j->getType() == 7) { this->cannonHitSound(); } // cannonball or flames
@@ -450,6 +563,22 @@ void AGame::displayCursor()
 }
 
 
+
+void AGame::displayGameOver()
+{
+	this->window->draw(this->gameoverRectangle);
+	this->window->draw(this->gameoverText);
+
+	sf::Vector2f p;
+	p.x = this->gameoverText.getPosition().x + 175;
+	p.y = this->gameoverText.getPosition().y + 50;
+
+	this->scoreText.setPosition(p);
+	this->scoreText.setCharacterSize(50);
+	
+}
+
+
 // sound
 void AGame::cannonSound()
 {
@@ -489,4 +618,9 @@ void AGame::hitohitonomiSound()
 void AGame::merameranomiSound()
 {
 	this->s_merameranomi.play();
+}
+
+void AGame::dashSound()
+{
+	this->s_dash.play();
 }

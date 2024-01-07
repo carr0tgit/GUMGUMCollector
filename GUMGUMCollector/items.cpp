@@ -9,12 +9,12 @@ AItem::AItem(sf::Vector2f i_position, int i_type)
 {
 	/*
 		Initialize Item
-		- change texture, value depending on type (also speed for cannonball)
+		- change texture, value depending on type (also speed for cannonball and flames)
 		- setup sprite (texture, scale, anchor, position)
 		- setup collision
 	*/
 
-	int random;
+	int random; // randomize loot
 	// setup type of item
 	switch (this->type)
 	{
@@ -96,11 +96,10 @@ AItem::AItem(sf::Vector2f i_position, int i_type)
 	this->itemSprite.setPosition(this->position);
 
 	// setup collision
-	this->itemCollision.setPosition(position);
+	this->itemCollision.setPosition(this->position);
 	this->itemCollision.setRadius(16.0f * this->itemScale);
 	this->itemCollision.setOrigin(16.0f * this->itemScale, 16.0f * this->itemScale);
 
-	//std::cout << "Item spawned" << std::endl;
 }
 
 AItem::~AItem()
@@ -112,12 +111,12 @@ AItem::~AItem()
 // ------------- Accessors ----------------
 sf::Vector2f AItem::getPosition() const
 {
-	return position;
+	return this->position;
 }
 
 int AItem::getType() const
 {
-	return type;
+	return this->type;
 }
 
 // ------------- Functions ----------------
@@ -141,7 +140,7 @@ void AItem::update(float deltaTime)
 	*/
 
 	// update collision position
-	this->itemCollision.setPosition(position);
+	this->itemCollision.setPosition(this->position);
 
 	// move item
 	this->velocity.y = this->speed * deltaTime;
@@ -153,7 +152,7 @@ void AItem::update(float deltaTime)
 	this->itemSprite.setPosition(this->position);
 
 	// Rotating Animation (with random speed between 100 and 150)
-	if (this->type == 7) { return; }
+	if (this->type == 7) { return; } // flames dont rotate
 	this->itemSprite.rotate((100 + (std::rand() % 50))* deltaTime);
 
 }
@@ -162,7 +161,7 @@ void AItem::update(float deltaTime)
 int AItem::onCollision(APlayer &Player)
 {
 	/*
-		What happens on collision
+		Collision Event
 		returns item value
 	*/
 	sf::Vector2f p;
@@ -189,7 +188,7 @@ int AItem::onCollision(APlayer &Player)
 		break;
 
 	case 5: // ope ope no mi devilfruit (law)
-		Player.setCanMove(false);
+		Player.setCanMove(false); // root player
 		break;
 
 	case 6: // mera mera no mi devilfruit (ace :))
