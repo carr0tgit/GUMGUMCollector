@@ -5,12 +5,26 @@
 void AGame::initWindow()
 {	
 	/*
-		Initialize Window
+		Initialize Window and Menu
 	*/
-
+	// window
 	this->videoMode = sf::VideoMode(640, 640);
 	this->window = new sf::RenderWindow(this->videoMode, "GUM GUM Collector", sf::Style::Close | sf::Style::Titlebar);
 	this->window->setMouseCursorVisible(false);
+
+	// font
+	if (!this->font.loadFromFile("assets/font/font.ttf")) { std::cout << "Error loading Font" << std::endl; }
+
+	// menu
+	if (!this->menuTexture.loadFromFile("assets/menu.png")) { std::cout << "Error loading Menu Image" << std::endl; }
+	this->menuSprite.setTexture(this->menuTexture);
+	this->menuSprite.setPosition(sf::Vector2f(0, 0));
+	// menu volume text
+	this->volumeText.setPosition(sf::Vector2f(255, 338));
+	this->volumeText.setString(std::to_string(this->soundVolume));
+	this->volumeText.setCharacterSize(40);
+	this->volumeText.setFont(this->font);
+
 }
 
 void AGame::initGameObjects()
@@ -101,9 +115,6 @@ void AGame::initVisuals()
 	this->healthSprite[1].setPosition(sf::Vector2f(556, 86));
 	this->healthSprite[2].setTexture(this->healthTexture);
 	this->healthSprite[2].setPosition(sf::Vector2f(595, 86));
-
-	// font
-	if (!this->font.loadFromFile("assets/font/font.ttf")) { std::cout << "Error loading Font" << std::endl; }
 	
 	// score
 	this->scoreText.setFont(this->font);
@@ -164,6 +175,9 @@ bool const AGame::running() const
 
 void AGame::pollEvents()
 {
+	/*
+		Poll SFML Events
+	*/
 	while (this->window->pollEvent(this->windowEvent))
 	{
 		// Close Button
@@ -185,6 +199,10 @@ void AGame::pollEvents()
 
 void AGame::run()
 {
+	/*
+		Game Main Function
+		- handles gameloop and menu/ingame scene
+	*/
 	// Initialize deltaTime
 	sf::Clock clock;
 	float deltaTime = 0.0f;
@@ -192,13 +210,14 @@ void AGame::run()
 
 	while (this->running())
 	{
+		deltaTime = clock.restart().asSeconds();
+		this->pollEvents();
 		if(!this->ingame) 
 		{
-			this->mainMenu();
+			this->mainMenu(deltaTime);
 		}
 		else
 		{
-			deltaTime = clock.restart().asSeconds();
 			this->update(deltaTime);
 			this->render();
 		}
@@ -216,15 +235,13 @@ void AGame::update(float deltaTime)
 		- check for player <-> item collision
 	*/
 
-	//sfml 
-	this->pollEvents();
 	// mouse
 	this->mouseUpdate();
 
-
+	// check gameover
 	if (this->gameover) 
 	{
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) // return to menu
 		{
 			this->ingame = false;
 		}
@@ -302,18 +319,55 @@ void AGame::render()
 }
 // game states
 
-void AGame::mainMenu()
+void AGame::mainMenu(float deltaTime)
 {
 	/*
 		Main Menu
-		- Spacebar to start game
+		- Enter to start game
 		- Up/Down to change volume
 	*/
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) { this->startGame();}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) { this->soundVolume += 10.0f; if (this->soundVolume > 100) { this->soundVolume = 100.0f; } }
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) { this->soundVolume -= 10.0f; if (this->soundVolume < 0) { this->soundVolume = 0.0f; }}
 
-	std::cout << "In Menu" << std::endl;
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter))
+	{
+		this->startGame();
+	}
+
+	if (this->soundTimer > 0.15f) 
+	{
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		{
+			this->soundVolume += 5;
+			if (this->soundVolume > 100)
+			{
+				this->soundVolume = 100;
+			}
+			this->volumeText.setString(std::to_string(this->soundVolume));
+			this->soundTimer = 0.0f;
+		}
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+		{
+			this->soundVolume -= 5;
+			if (this->soundVolume < 0)
+			{
+				this->soundVolume = 0;
+			}
+			this->volumeText.setString(std::to_string(this->soundVolume));
+			this->soundTimer = 0.0f;
+		}
+	}
+	else
+	{
+		this->soundTimer += deltaTime;
+	}
+
+
+	// Clear / Draw / Display 
+	this->window->clear(sf::Color::Black);
+
+	this->window->draw(this->menuSprite);
+	this->window->draw(this->volumeText);
+
+	this->window->display();
 }
 
 
@@ -363,7 +417,7 @@ void AGame::checkPlayerCollisions()
 		if ((dx + dy) <= (this->player->playerCollision.getRadius() + j->itemCollision.getRadius()))
 		{
 			score += j->onCollision(*player); // collect or activate item
-			if (this->player->getHealth() == 0)
+			if (this->player->getHealth() == 0) // end game if player health is 0
 			{
 				this->gameover = true;
 			}
@@ -388,7 +442,7 @@ void AGame::checkPlayerCollisions()
 		if ((dx + dy) <= (this->player->handCollision.getRadius() + j->itemCollision.getRadius()) && this->player->getIsGrabbing())
 		{
 			score += j->onCollision(*player); // collect or activate item
-			if (this->player->getHealth() == 0)
+			if (this->player->getHealth() == 0) // end game if player health is 0
 			{
 				this->gameover = true;
 			}
@@ -432,7 +486,6 @@ void AGame::spawnItem()
 		- selects random spawning position
 		- check if spawn position is to close to last one
 	*/
-	//AItem item(sf::Vector2f(20.0f, 20.0f), 1);
 	// probability = 88 % loot , 6 % meat , 6 % devilfruits
 	int probability[15] = { 1, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3}; // 1 is meat 3 is loot 4 is devil fruit
 	int devilfruits[3] = { 4, 5, 6 };
@@ -471,23 +524,23 @@ void AGame::spawnCannonball()
 	/*
 		Spawn Cannonball
 		- random position
-		- cant spawn on previous item starting position
-		- target player roughly at least every 3rd shot
+		- cant spawn on previous cannonball starting position
+		- target player sometimes
 	*/
 
 	sf::Vector2f p;
 	p.x = (std::rand() % 460) + 20; // random value between 20 and 480
 	p.y = -100.0f; // off screen spawning
 
-
+	// target player
 	if(this->cannonTotal % 3 == 1) // start with second shot 
 	{
 		p.x = this->player->getPosition().x + this->player->playerCollision.getRadius(); // target center of player
 	}
 	
-
+	//  cant spawn on previous cannonball starting position
 	float distance = sqrt((p.x - this->previousCannonX) * (p.x - this->previousCannonX));
-	while (distance < 32)
+	while (distance < 32) // 32 is width
 	{
 		p.x = (std::rand() % 460) + 20;
 		distance = sqrt((p.x - this->previousCannonX) * (p.x - this->previousCannonX));
@@ -502,12 +555,11 @@ void AGame::spawnCannonball()
 void AGame::spawnFlames()
 {
 	/*
-		Spawn Cannonball
-		- random position
+		Spawn Flames
 		- target player
 	*/
 	sf::Vector2f p;
-	p.x = this->player->getPosition().x + this->player->playerCollision.getRadius();
+	p.x = this->player->getPosition().x + this->player->playerCollision.getRadius(); // center of player
 	p.y = -100.0f; // off screen spawning
 	this->items.push_back(new AItem(p, 7));
 }
@@ -525,7 +577,7 @@ void AGame::mouseUpdate()
 	this->cursorSprite.setPosition(p);
 }
 
-// visual stuff
+// visuals
 void AGame::displayHealth()
 {
 	for (int i = 0; i < this->player->getHealth(); i++)
@@ -536,23 +588,25 @@ void AGame::displayHealth()
 
 void AGame::displayScore()
 {
-	this->scoreText.setString(sf::String(std::to_string(score)));
-	//this->scoreText.setString(sf::String("Test"));
+	this->scoreText.setString(std::to_string(this->score));
 	this->window->draw(scoreText);
 }
 
 void AGame::displayDashbar()
 {
+	/*
+		Display Dash Cooldown as a Bar
+	*/
 	sf::Vector2i p(this->dashbarSprite.getPosition());
 
-	//std::cout << this->player->getDashCooldown() << std::endl;
+	// if dash is up 
 	if (this->player->getDashCooldown() == 1.0f)
 	{
 		this->window->draw(this->dashbarSprite2);
 		return;
 	}
 
-	int dashbarx = 100 * this->player->getDashCooldown();
+	int dashbarx = 100 * this->player->getDashCooldown(); // width
 	this->dashbarSprite.setTextureRect(sf::IntRect(p,sf::Vector2i(dashbarx, 32)));
 	this->window->draw(this->dashbarSprite);
 }

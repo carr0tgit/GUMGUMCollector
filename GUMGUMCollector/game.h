@@ -18,7 +18,8 @@ private:
 	sf::Event windowEvent;
 
 	// ------------- settings -----------------
-	float soundVolume = 50.0f;
+	int soundVolume = 50;
+	float soundTimer = 0.0f; // Delay for changing volume
 	// ------------- game objects -------------
 	bool gameover = false;
 	bool ingame = false;
@@ -40,6 +41,7 @@ private:
 	// main menu
 	sf::Texture menuTexture;
 	sf::Sprite menuSprite;
+	sf::Text volumeText;
 	// background
 	sf::Texture backgroundTexture;
 	sf::Sprite backgroundSprite;
@@ -107,7 +109,7 @@ public:
 	void render();
 
 	// main menu
-	void mainMenu();
+	void mainMenu(float deltaTime);
 
 	// game functions
 	void startGame();
@@ -118,7 +120,7 @@ public:
 	void spawnFlames();
 	void mouseUpdate();
 
-	// visuals stuff
+	// visuals 
 	void displayHealth();
 	void displayScore();
 	void displayDashbar();
