@@ -1,3 +1,6 @@
+
+![alt text](https://github.com/carr0tgit/GUMGUMCOllector/blob/main/GUMGUMCollector/assets/menu.png?raw=true)
+
 How to play:
 	Collect Loot and Dodge Cannonballs
 	Walk using W A S D
